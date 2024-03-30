@@ -1,5 +1,7 @@
 package com.example.plugins
 
+import com.example.utils.sendTelegramNotification
+import com.example.utils.superUserId
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -15,6 +17,7 @@ fun Application.configureReservationsRouting(reservationService: ReservationServ
         }
 
         get("/reservations") {
+            sendTelegramNotification(superUserId, "Somebody has read reservations")
             val reservations = reservationService.getAll()
             call.respond(HttpStatusCode.OK, reservations)
         }
