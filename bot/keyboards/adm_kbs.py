@@ -2,14 +2,18 @@ from aiogram.types import KeyboardButton
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
 
 
-def adm_main_kb():
+def main_kb():
     kb = ReplyKeyboardBuilder()
 
     kb.row(
-        KeyboardButton(text='add/remove adm'),
-        KeyboardButton(text='rooms management')
+        KeyboardButton(text='Добавить АДМ'),
+        KeyboardButton(text='Удалить АДМ')
     )
-    return kb.as_markup(resize_keyboard=True, )
+    kb.row(
+        KeyboardButton(text='Заблокировать бронирования'),
+        KeyboardButton(text='Разблокировать бронирования')
+    )
+    return kb.as_markup(resize_keyboard=True, one_time_keyboard=True)
 
 
-
+def 
