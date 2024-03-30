@@ -13,6 +13,7 @@ fun Application.configureReservationsRouting(reservationService: ReservationServ
     routing {
         post("/reservations") {
             val reservation = call.receive<ExposedReservation>()
+
             val id = reservationService.create(reservation)
             call.respond(HttpStatusCode.Created, id)
         }

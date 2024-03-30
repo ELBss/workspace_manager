@@ -15,6 +15,7 @@ fun main() {
     embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::module)
         .start(wait = true)
 
+    println("                              " + LocalDateTime.now().toString())
     GlobalScope.launch {
         while (isActive) {
             checkReservationsAndNotify()
