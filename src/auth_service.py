@@ -8,6 +8,8 @@ from uuid import uuid4, UUID
 import json
 from sqlalchemy import Column, Integer, String, literal_column, select, create_engine, delete
 from sqlalchemy.orm import declarative_base, sessionmaker
+from dotenv import load_dotenv
+import os
 
 app = FastAPI()
 tasks = []
@@ -72,6 +74,8 @@ async def create_task(nickname: dict, background_tasks: BackgroundTasks):
 
 def send_mail(task: Task_str, nickname: str) -> str:
     email = "workspacemanagertelebot@yandex.ru"
+    # load_dotenv('.env')
+    # password = os.getenv("MAIL_PASSWORD")
     password = "wwjitkohdkflgpzx" # need hide
     dest_email = nickname + "@student.21-school.ru"
     subject = "Authorization"
@@ -85,7 +89,7 @@ def send_mail(task: Task_str, nickname: str) -> str:
 
     server = smtp.SMTP_SSL('smtp.yandex.com', 465)
     server.login(email, password)
-    # server.sendmail(email, dest_email, message)
+    server.sendmail(email, dest_email, message)
     server.quit()
 
     task.status = "ready"
