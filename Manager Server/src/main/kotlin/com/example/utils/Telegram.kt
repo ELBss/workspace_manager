@@ -9,3 +9,4 @@ suspend fun sendTelegramNotification(userId: String, message: String) {
         parameter("text", message)
     }
 }
+
