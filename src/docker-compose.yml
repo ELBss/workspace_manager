@@ -1,33 +1,73 @@
+# version: '3.8'
+
+# services:
+#   authservice:
+#     build:
+#       dockerfile: Dockerfile.auth
+#       context: .
+#     restart: on-failure
+#     ports:
+#       - '8888:8888'
+    
+#   bot:
+#     build: .
+#     restart: always
+#     depends_on:
+#       - authservice
+    
 version: '3.8'
 
 services:
-  # postgres:
-  #   image: postgres:16
-  #   ports:
-  #     - '5432:5432'
-  #   volumes:
-  #     - 
+  # authservice:
+  #   build:
+  #     dockerfile: Dockerfile.auth
+  #     context: .
   #   restart: on-failure
-  authservice:
-    build: .
-    restart: on-failure
+  #   ports:
+  #     - '8888:8888'
+  #     - '465:465'
+ 
+
+
+
+
+
+    
+  auth_service:
+    build: ./auth_service
+    container_name: auth_service
+    working_dir: /src
+    volumes:
+      - ./auth_service:/src
+    command: bash -c "pip install -r ./requirements.txt; python3 main.py;"
     ports:
-      - '8888:8888'
+      - 8888:8888
+
+  bot_service:
+    build: ./bot_service
+    container_name: bot_service
+    working_dir: /src
+    volumes:
+      - ./bot_service:/src
+    command: bash -c "pip install -r ./requirements.txt; python3 bot.py;"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    # restart: always
+    # depends_on:
+      # - authservice
+    # VOLUME $(pwd)/project/:/src/bot
     
-  bot:
-    build: .
     # environment:
-    #   DB_HOST: postgres
-    #   DB_PORT: 5432
-    restart: always
-    depends_on:
-      - authservice
-    
-
-
-
-
-      # $(pwd)/project/:/src/bot             /src
-      # pgdata:/var/lib/postgresql/data
-      # 
-# /home/janissca/hackathon/workspace_manager/src
+    #   - AUTH_URL=http://authservice:8888
