@@ -59,7 +59,7 @@ class RGB_LED:
 
 rgb_led = RGB_LED(RED_PIN, GREEN_PIN, BLUE_PIN)
 
-rgb_led.set_color(COLOR_RED)
-
-rgb_led.pulse(1)
-rgb_led.set_color(COLOR_BLUE)
+# rgb_led.set_color(COLOR_RED)
+# 
+# rgb_led.pulse(1)
+# rgb_led.set_color(COLOR_BLUE)
