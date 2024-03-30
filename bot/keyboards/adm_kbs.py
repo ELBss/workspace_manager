@@ -9,7 +9,7 @@ def adm_main_kb():
         KeyboardButton(text='add/remove adm'),
         KeyboardButton(text='rooms management')
     )
-    return kb.as_markup(resize_keyboard=True)
+    return kb.as_markup(resize_keyboard=True, )
 
 
 

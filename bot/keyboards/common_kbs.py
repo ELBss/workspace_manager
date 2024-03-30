@@ -9,7 +9,7 @@ def main_kb():
         KeyboardButton(text='book'),
         KeyboardButton(text='list')
     )
-    return kb.as_markup(resize_keyboard=True)
+    return kb.as_markup(resize_keyboard=True, one_time_keyboard=True)
 
 
 def get_weekday_kb():
@@ -30,23 +30,21 @@ def get_weekday_kb():
 def get_timeperiod_kb():
     kb = InlineKeyboardBuilder()
 
-    return kb.as_markup(resize_keyboard=True)
-
-
-def get_timeslot_kb():
-    kb = InlineKeyboardBuilder()
+    for i in range(1, 5):
+        kb.add(InlineKeyboardButton(
+            text=f"{15 * i} мин", callback_data=str(15*i)))
 
     return kb.as_markup(resize_keyboard=True)
 
 
-def list_bookings_kb():
-    kb = InlineKeyboardBuilder()
+# def list_bookings_kb():
+#     kb = InlineKeyboardBuilder()
 
-    return kb.as_markup(resize_keyboard=True)
+#     return kb.as_markup(resize_keyboard=True)
 
 
 def registration_kb():
     kb = ReplyKeyboardBuilder()
     kb.add(KeyboardButton(text='nickname again'))
 
-    return kb.as_markup(resize_keyboard=True)
+    return kb.as_markup(resize_keyboard=True, one_time_keyboard=True)
