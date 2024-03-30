@@ -8,5 +8,5 @@ from keyboards import adm_kbs
 
 router = Router()
 
-# @router.message(AdminSG.choosing_action, F.text.casefold() == 'add/remove adm')
-# async def 
+@router.message(AdminSG.choosing_action, F.text.casefold() == 'add/remove adm')
+async def 

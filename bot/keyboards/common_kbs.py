@@ -6,8 +6,8 @@ from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
 def main_kb():
     kb = ReplyKeyboardBuilder()
     kb.row(
-        KeyboardButton(text='book'),
-        KeyboardButton(text='list')
+        KeyboardButton(text='Забронировать'),
+        KeyboardButton(text='Отменить бронирование')
     )
     return kb.as_markup(resize_keyboard=True, one_time_keyboard=True)
 
@@ -45,6 +45,6 @@ def get_timeperiod_kb():
 
 def registration_kb():
     kb = ReplyKeyboardBuilder()
-    kb.add(KeyboardButton(text='nickname again'))
+    kb.add(KeyboardButton(text='Ввести ник заново'))
 
     return kb.as_markup(resize_keyboard=True, one_time_keyboard=True)
