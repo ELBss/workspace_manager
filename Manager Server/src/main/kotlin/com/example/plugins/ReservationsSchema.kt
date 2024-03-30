@@ -19,20 +19,20 @@ enum class ReservationPurpose {
 
 @Serializable
 data class ExposedReservation(
-    val id: Int?,
+    val id: Int? = null,
     @SerialName("user_id") val userId: Int,
-    @SerialName("room_id") val roomId: Int,
+    @SerialName("room_id") val roomId: String,
     val begin: LocalDateTime,
     val end: LocalDateTime,
-    val purpose: ReservationPurpose,
-    val participants: Int,
-    val comment: String
-    )
+    val purpose: ReservationPurpose = ReservationPurpose.MEETUP,
+    val participants: Int = 1,
+    val comment: String = ""
+)
 
 class ReservationService(private val database: Database) {
     object Reservations : IntIdTable() {
         val userId = integer("user_id")
-        val roomId = integer("room_id")
+        val roomId = varchar("room_id", length = 16)
         val begin = datetime("begin")
         val end = datetime("end")
         val purpose = enumeration<ReservationPurpose>("purpose")
@@ -101,6 +101,28 @@ class ReservationService(private val database: Database) {
                 .map { ExposedReservation(it[Reservations.id].value, it[Reservations.userId], it[Reservations.roomId],
                 it[Reservations.begin].toKotlinLocalDateTime(), it[Reservations.end].toKotlinLocalDateTime(),
                 it[Reservations.purpose], it[Reservations.participants], it[Reservations.comment]) }
+        }
+    }
+
+    suspend fun getReservationsByRoomAndDate(roomId: String, date: LocalDate) : List<ExposedReservation> {
+        val intervalStart = date.toJavaLocalDate().atStartOfDay()
+        val intervalEnd = intervalStart.plusDays(1).minusMinutes(1)
+        return dbQuery {
+            Reservations.select { (Reservations.begin greaterEq intervalStart) and
+                    (Reservations.end lessEq intervalEnd) and (Reservations.roomId eq roomId)
+            }
+                .map { ExposedReservation(it[Reservations.id].value, it[Reservations.userId], it[Reservations.roomId],
+                    it[Reservations.begin].toKotlinLocalDateTime(), it[Reservations.end].toKotlinLocalDateTime(),
+                    it[Reservations.purpose], it[Reservations.participants], it[Reservations.comment]) }
+        }
+    }
+
+    suspend fun getAll(): List<ExposedReservation> {
+        return dbQuery {
+            Reservations.selectAll()
+                .map { ExposedReservation(it[Reservations.id].value, it[Reservations.userId], it[Reservations.roomId],
+                    it[Reservations.begin].toKotlinLocalDateTime(), it[Reservations.end].toKotlinLocalDateTime(),
+                    it[Reservations.purpose], it[Reservations.participants], it[Reservations.comment]) }
         }
     }
 }

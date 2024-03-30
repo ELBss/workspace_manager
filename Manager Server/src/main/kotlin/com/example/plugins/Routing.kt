@@ -5,9 +5,13 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
 fun Application.configureRouting() {
+    configureSerialization()
+    configureDatabases()
+    configureHTTP()
     routing {
+        OpenAPIGen@
         get("/") {
-            call.respondText("Hello World!")
+            call.respondText("Welcome to Workspace Manager Server!")
         }
     }
 }
