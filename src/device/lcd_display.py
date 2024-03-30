@@ -40,7 +40,7 @@ class LCD_Display:
         for i, line in enumerate(lines):
             if i + self.lcd.cursor_position[1] < self.rows:
                 self.lcd.print(line)
-                if len(lines) > 1:
+                if len(lines) > 1 and line != '':
                     self.lcd.cursor_position = (0, self.lcd.cursor_position[1] + 1)
             else:
                 self.lcd.clear()

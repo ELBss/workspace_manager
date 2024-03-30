@@ -1,5 +1,4 @@
 from machine import Pin, PWM
-import utime
 
 RED_PIN = 15
 GREEN_PIN = 12
@@ -53,13 +52,6 @@ class RGB_LED:
         self.green.duty(self.green.duty())
         self.blue.duty(self.blue.duty())
 
-    def pulse(self, count):
+    def pulse(self, count=1):
         for i in range(count):
             self.set_color(self.color_tuple)
-
-rgb_led = RGB_LED(RED_PIN, GREEN_PIN, BLUE_PIN)
-
-# rgb_led.set_color(COLOR_RED)
-# 
-# rgb_led.pulse(1)
-# rgb_led.set_color(COLOR_BLUE)
