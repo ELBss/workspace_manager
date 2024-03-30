@@ -1,7 +1,7 @@
 import smtplib as smtp
 import random
 import string
-from fastapi import FastAPI, BackgroundTasks
+from fastapi import FastAPI, BackgroundTasks, HTTPException
 from pydantic import BaseModel
 import uvicorn
 from uuid import uuid4, UUID
@@ -129,7 +129,7 @@ def get_user_role(user_id: str):
     if user_role:
         role = user_role.role
     else:
-        return None
+        raise HTTPException(status_code=404, detail="Item not found")
     result = json.dumps({"user_id": int(user_id), "role": role})
     return result
     
