@@ -36,7 +36,7 @@ async def get_date(callback: CallbackQuery, state: FSMContext):
     await state.set_state(CommonSG.choosing_time)
 
 
-@router.message(CommonSG.choosing_time, F.text.regexp(r'^([0-1]?[0-9]|2[0-3]):[0-5][0-9]'))
+@router.message(CommonSG.choosing_time, F.text.regexp(r'^([0-1][0-9]|2[0-3]):[0-5][0-9]'))
 async def choose_time(message: Message, state: FSMContext):
     data = await state.get_data()
     begin = data['date'] + 'T' + message.text + ':00'
@@ -60,8 +60,8 @@ async def get_period(callback: CallbackQuery, state: FSMContext):
     await state.update_data(end=datetime.strftime(end, '%Y-%m-%dT%H:%M:%S'))
 
     data = await state.get_data()
-    # booked = await booking_requests.book(data)
-    booked = True
+    booked = await booking_requests.book(data)
+    # booked = True
     if booked:
         await callback.answer('Забронировано')
         await callback.message.edit_text('Забронировано!')

@@ -1,0 +1,8 @@
+openapi: "3.0.3"
+info:
+  title: "Manager_Server API"
+  description: "Manager_Server API"
+  version: "1.0.0"
+servers:
+- url: "https://Manager_Server"
+paths: {}

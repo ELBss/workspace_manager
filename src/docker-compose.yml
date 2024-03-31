@@ -41,7 +41,7 @@ services:
       - ./auth_service:/src
     command: bash -c "pip install -r ./requirements.txt; python3 main.py;"
     ports:
-      - 8888:8888
+      - '8888:8888'
 
   bot_service:
     build: ./bot_service
@@ -51,7 +51,15 @@ services:
       - ./bot_service:/src
     command: bash -c "pip install -r ./requirements.txt; python3 bot.py;"
 
-
+  db_service:
+    build: ./manager_server
+    container_name: db_service
+    # working_dir: /app
+    # volumes:
+    #   - ./manager_server:/manager_server
+    # command: "java -jar fat.jar;"
+    ports:
+      - '8080:8080'
 
 
 
