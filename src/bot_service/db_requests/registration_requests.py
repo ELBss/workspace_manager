@@ -41,21 +41,21 @@ async def get_to_auth(endpoint: str, data:dict):
     raise Exception("BBBBB")
 
 
-    async with aiohttp.ClientSession() as session:
-        print("Enter to function", flush=True)
-        async with session.post(URL + endpoint, json=data) as response:
-            if response.status == 200:
-                r = await response.json()
-        for i in range(10):
-            # while True:
-            print( URL + r['id'] )
-            async with session.get(URL + r['id']) as response:
-                data = await response.json()
-                if data['status'] == 'ready':
-                    print("Hurray!!!!", flush=True)
-                    return data['result']
-                    # break
-            sleep(0.5)
+    # async with aiohttp.ClientSession() as session:
+    #     print("Enter to function", flush=True)
+    #     async with session.post(URL + endpoint, json=data) as response:
+    #         if response.status == 200:
+    #             r = await response.json()
+    #     for i in range(10):
+    #         # while True:
+    #         print( URL + r['id'] )
+    #         async with session.get(URL + r['id']) as response:
+    #             data = await response.json()
+    #             if data['status'] == 'ready':
+    #                 print("Hurray!!!!", flush=True)
+    #                 return data['result']
+    #                 # break
+    #         sleep(0.5)
 
     # return result
 

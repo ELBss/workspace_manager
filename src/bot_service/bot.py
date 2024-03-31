@@ -1,7 +1,7 @@
 import asyncio
 import logging
 # import locale
-import aiohttp
+# import aiohttp
 
 from aiogram import Bot, Dispatcher
 
@@ -17,7 +17,7 @@ async def main():
 
     dp.include_routers(common_handler.router, registration_handler.router)
 
-    session = aiohttp.ClientSession()
+    # session = aiohttp.ClientSession()
 
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)

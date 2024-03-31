@@ -17,8 +17,8 @@ router = Router()
 async def start(message: Message, state: FSMContext):
     state.clear()
     await state.update_data(user_id=message.from_user.id)
-    await message.answer("Дата бронирования:", reply_markup=common_kbs.get_weekday_kb())
-    await state.set_state(CommonSG.choosing_date)
+    await message.answer("Дата бронирования:", reply_markup=common_kbs.main_kb())
+    await state.set_state(CommonSG.choosing_action)
 
 
 @router.message(CommonSG.choosing_action, F.text == 'Забронировать')
@@ -64,12 +64,10 @@ async def get_period(callback: CallbackQuery, state: FSMContext):
     booked = True
     if booked:
         await callback.answer('Забронировано')
-        callback.message.edit_text(
-            'booked!', reply_markup=common_kbs.main_kb())
+        await callback.message.edit_text('Забронировано!')
     else:
-        await callback.answer('На это время свободных переговорок нет')
-        callback.message.edit_text(
-            'not booked!', reply_markup=common_kbs.main_kb())
+        await callback.answer('Не забронировано')
+        await callback.message.edit_text('На это время свободных переговорок нет')
     await state.clear()
     await state.set_state(CommonSG.choosing_action)
 
