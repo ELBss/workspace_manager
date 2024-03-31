@@ -64,7 +64,7 @@ async def check_user(task, user_id):
     user = session.query(UserRole).filter(UserRole.user_id == user_id).first()
     task.status = "ready"
     if user:
-        task.result = True
+        task.result = user.role
 
 @app.post("/check_mail", response_model=Task_str)
 async def create_task(nickname: dict, background_tasks: BackgroundTasks):
@@ -113,16 +113,16 @@ async def create_task(code: dict, background_tasks: BackgroundTasks):
 
 async def check_code(task: Task_bool, code:dict):
     user = session.query(NicknameCode).filter(
+        # NicknameCode.code == 'a' and 
         NicknameCode.code == code['code'] and 
-        NicknameCode.nickname == code['nickname']).first()
-
-    new_user = UserRole(
-        user_id=code['user_id'], nickname=code['nickname'], role='COMMON')
-    session.add(new_user)
-    session.commit()
+        NicknameCode.nickname == code['nickname']).first()   
 
     task.status = "ready"
     if user:
+        new_user = UserRole(
+        user_id=code['user_id'], nickname=code['nickname'], role='COMMON')
+        session.add(new_user)
+        session.commit()
         task.result = True
 
     # delete_statement = delete(NicknameCode).where(NicknameCode.id == user.id)
