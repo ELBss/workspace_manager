@@ -1,7 +1,13 @@
 package com.example.plugins
 
+import com.example.models.RegisteredUser
+import com.example.models.UserRole
+import com.example.utils.HttpClientProvider
+import com.example.utils.authServiceUrl
 import com.example.utils.sendTelegramNotification
 import com.example.utils.superUserId
+import io.ktor.client.call.*
+import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -13,9 +19,21 @@ fun Application.configureReservationsRouting(reservationService: ReservationServ
     routing {
         post("/reservations") {
             val reservation = call.receive<ExposedReservation>()
-
-            val id = reservationService.create(reservation)
-            call.respond(HttpStatusCode.Created, id)
+            val userId = reservation.userId
+            val authResponse = HttpClientProvider.authServiceClient.get(authServiceUrl + "user/id=$userId")
+            if (authResponse.status == HttpStatusCode.OK) {
+                val user = authResponse.body<RegisteredUser>()
+                if (user.role == UserRole.ADM || user.role == UserRole.COMMON) {
+                    val id = reservationService.create(reservation)
+                    call.respond(HttpStatusCode.Created, id)
+                    sendTelegramNotification(userId.toString(), "Reservation successfully")
+                } else {
+                    sendTelegramNotification(superUserId, "Somebody has attempted unauthorized reservation")
+                    call.respond(HttpStatusCode.Forbidden)
+                }
+            } else {
+                call.respond(HttpStatusCode.Unauthorized)
+            }
         }
 
         get("/reservations") {
@@ -41,7 +59,7 @@ fun Application.configureReservationsRouting(reservationService: ReservationServ
             call.respond(HttpStatusCode.OK)
         }
 
-        delete("/blockings/id={id}") {
+        delete("/reservations/id={id}") {
             val id = call.parameters["id"]?.toInt() ?: throw IllegalArgumentException("Invalid ID")
             reservationService.delete(id)
             call.respond(HttpStatusCode.OK)
