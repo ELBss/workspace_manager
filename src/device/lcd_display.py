@@ -2,8 +2,8 @@ from machine import Pin, I2C
 from lcd_i2c import LCD
 
 
-SDA_PIN = 4
-SCL_PIN = 5
+SDA_PIN = 21
+SCL_PIN = 22
 
 
 class LCD_Display:

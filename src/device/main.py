@@ -1,4 +1,4 @@
-# pre-main base programm
+# demo version
 
 from network import WLAN, STA_IF, hostname
 from machine import RTC, Pin
@@ -15,13 +15,9 @@ TIMEZONE = 7
 WIFI_SSID = 'SM-G960U'
 WIFI_PASSWORD = 'House Always Wins'
 
-led = RGB_LED(RED_PIN, GREEN_PIN, BLUE_PIN)
-lcd = LCD_Display(scl_pin=SCL_PIN, sda_pin=SDA_PIN)
-sensor = PIR_Sensor(SENSOR_PIN)
-rtc = RTC()
-
 
 def do_connect():
+    "Подключение к Wi-Fi"
     sta_if = WLAN(STA_IF)
     if not sta_if.isconnected():
         print('Connecting to network...')
@@ -50,8 +46,10 @@ def do_connect():
         lcd.print("Can't connect!")
         print('network config:', sta_if.ifconfig())
         return None
-        
+
+# ESP32 нуждается в периодической синхронизации RTC
 def time_sync():
+    "Синхронизация RTC устройства с ntp сервером"
     print("First time:", rtc.datetime())
     try:
         ntptime.settime()
@@ -67,8 +65,9 @@ def time_sync():
         print("NSK time:", rtc.datetime())
         
 def check_server_access():
+    "Проверка доступа к серверу"
     try:
-        response = urequests.get('https://workspace-manager.onrender.com/reservations')
+        response = urequests.get('https://workspace-manager.onrender.com/reservations') # Хорошо бы передавать адрес аргументом. Но не сегодня. 
         if response.status_code == 200:
             print("Доступ к серверу есть.")
             return True
@@ -84,19 +83,33 @@ def check_server_access():
         if 'response' in locals() or 'response' in globals():
             response.close()
 
-        
-net = do_connect()
-
-led.pulse()
-
-time_sync()
-
-# if check_server_access():
-#     print("Устройство успешно подключено к серверу.")
-# else:
-#     print("Устройство не подключено к серверу.")
 
 
+def main():
+    
+    net = do_connect()
+    if net.isconnected():
+        led.pulse()
+        time_sync()
+        if check_server_access():
+            print("Устройство успешно подключено к серверу.")
+            sensor.observation_cycle()
+#             здесь должен быть основной рабочий цикл устройства, включающий в себя:
+#             обновление информации о бронированиях комнаты на ближайшее время
+#             периодическая синхронизация внутренних часов микроконтроллера функцией time_sync()
+#             в случае периода бронирования мониторинг показаний датчика sensor.observation_cycle()
+#             отправка на сервер сигнало о превышении лимита времени пользователем
+#             или в случае незарегестрированного нахождения в комнате
+        else:
+            print("Устройство не подключено к серверу.")
+            led.set_color(1023, 0, 0)
+            lcd.clear()
+            lcd.print("Please contact\nSupport")
 
-# sensor.observation_cycle()
+# инициализация подключенных устройсв
+led = RGB_LED(RED_PIN, GREEN_PIN, BLUE_PIN)
+lcd = LCD_Display(scl_pin=SCL_PIN, sda_pin=SDA_PIN)
+sensor = PIR_Sensor(SENSOR_PIN)
+rtc = RTC()
 
+main()
