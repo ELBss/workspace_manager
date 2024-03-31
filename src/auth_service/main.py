@@ -6,7 +6,7 @@ from pydantic import BaseModel
 import uvicorn
 from uuid import uuid4, UUID
 import json
-from sqlalchemy import Column, Integer, String, literal_column, select, create_engine, delete
+from sqlalchemy import Column, Integer, String, create_engine, delete
 from sqlalchemy.orm import declarative_base, sessionmaker
 from dotenv import load_dotenv
 import os
@@ -14,6 +14,12 @@ import os
 app = FastAPI()
 tasks = []
 Base = declarative_base()
+
+engine = create_engine('sqlite:///user_auth.db')
+Base.metadata.create_all(engine)
+Session = sessionmaker(bind=engine)
+session = Session()
+session.commit()
 
 class Task_bool(BaseModel):
     id: UUID
@@ -74,9 +80,8 @@ async def create_task(nickname: dict, background_tasks: BackgroundTasks):
 
 def send_mail(task: Task_str, nickname: str) -> str:
     email = "workspacemanagertelebot@yandex.ru"
-    # load_dotenv('.env')
-    # password = os.getenv("MAIL_PASSWORD")
-    password = "wwjitkohdkflgpzx" # need hide
+    load_dotenv('.env')
+    password = os.getenv("MAIL_PASSWORD")
     dest_email = nickname + "@student.21-school.ru"
     subject = "Authorization"
     secret_code = task.result
@@ -112,7 +117,7 @@ async def check_code(task: Task_bool, code:dict):
         NicknameCode.nickname == code['nickname']).first()
 
     new_user = UserRole(
-        user_id=code['user_id'], nickname=code['nickname'], role='COMMON') #autoincrement doesn't work, i dont know why
+        user_id=code['user_id'], nickname=code['nickname'], role='COMMON')
     session.add(new_user)
     session.commit()
 
@@ -123,9 +128,6 @@ async def check_code(task: Task_bool, code:dict):
     # delete_statement = delete(NicknameCode).where(NicknameCode.id == user.id)
     # session.execute(delete_statement)
     # session.commit()
-
-class UserRequest(BaseModel):
-    user: dict
 
 @app.get("/user/id={user_id}")
 def get_user_role(user_id: str):
@@ -139,21 +141,13 @@ def get_user_role(user_id: str):
     
 
 if __name__ == "__main__":
-    engine = create_engine('sqlite:///user_auth.db')
-    Base.metadata.create_all(engine)
-    Session = sessionmaker(bind=engine)
-    session = Session()
+    # # for testing
+    # #===================================================================
+    # user_role1 = UserRole(user_id=666, nickname='chelovek_admin', role='ADM')
+    # user_role2 = UserRole(user_id=333, nickname='user-man', role='COMMON')
+    # user_role3 = UserRole(user_id=999, nickname='user-woman', role='COMMON')
+    # session.add_all([user_role1, user_role2, user_role3])
+    # #===================================================================
 
-    # for testing
-    #===================================================================
-    user_role1 = UserRole(user_id=666, nickname='chelovek_admin', role='ADM')
-    user_role2 = UserRole(user_id=333, nickname='user-man', role='COMMON')
-    user_role3 = UserRole(user_id=999, nickname='user-woman', role='COMMON')
-    session.add_all([user_role1, user_role2, user_role3])
-    #===================================================================
-
-    session.commit()
-
-    uvicorn.run(app, port=8888)
-
-# wwjitkohdkflgpzx
+    # uvicorn.run(app, port=8888)
+    uvicorn.run("main:app", host="0.0.0.0", port=8888, reload=True)
