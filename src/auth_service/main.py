@@ -136,7 +136,7 @@ def get_user_role(user_id: str):
         role = user_role.role
     else:
         raise HTTPException(status_code=404, detail="Item not found")
-    result = json.dumps({"user_id": int(user_id), "role": role})
+    result = {"user_id": int(user_id), "role": role}
     return result
     
 

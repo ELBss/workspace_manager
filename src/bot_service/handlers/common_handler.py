@@ -61,13 +61,9 @@ async def get_period(callback: CallbackQuery, state: FSMContext):
 
     data = await state.get_data()
     booked = await booking_requests.book(data)
-    # booked = True
-    if booked:
-        await callback.answer('Забронировано')
-        await callback.message.edit_text('Забронировано!')
-    else:
-        await callback.answer('Не забронировано')
-        await callback.message.edit_text('На это время свободных переговорок нет')
+
+    await callback.answer()
+    await callback.message.edit_text('Запрос отправлен')
     await state.clear()
     await state.set_state(CommonSG.choosing_action)
 
