@@ -13,7 +13,8 @@ router = Router()
 
 @router.message(StateFilter(None), Command("start"))
 async def cmd_start(message: Message, state: FSMContext):
-    registered = await registration_requests.check_id(message.from_user.id)
+    response = await registration_requests.check_id(message.from_user.id)
+    registered = response['result']
     # registered = 'peer'
     if registered == 'ADM':
         await message.answer('uyfg', reply_markup=adm_kbs.adm_main_kb())
@@ -47,7 +48,7 @@ async def try_code(message: Message, state: FSMContext):
     registered = await registration_requests.send_code(data['nickname'], message.text, message.from_user.id)
     # registered = True
     if registered:
-        await message.answer('Пользователь зарегистрирован', reply_markup=common_kbs.main_kb())
+        await message.answer('Выбери действие:', reply_markup=common_kbs.main_kb())
         await state.set_state(CommonSG.choosing_action)
     else:
         await message.answer('Неверный код, введи ник снова', reply_markup=ReplyKeyboardRemove())

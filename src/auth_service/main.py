@@ -6,7 +6,7 @@ from pydantic import BaseModel
 import uvicorn
 from uuid import uuid4, UUID
 import json
-from sqlalchemy import Column, Integer, String, literal_column, select, create_engine, delete
+from sqlalchemy import Column, Integer, String, create_engine, delete
 from sqlalchemy.orm import declarative_base, sessionmaker
 from dotenv import load_dotenv
 import os
@@ -14,6 +14,12 @@ import os
 app = FastAPI()
 tasks = []
 Base = declarative_base()
+
+engine = create_engine('sqlite:///user_auth.db')
+Base.metadata.create_all(engine)
+Session = sessionmaker(bind=engine)
+session = Session()
+session.commit()
 
 class Task_bool(BaseModel):
     id: UUID
@@ -40,38 +46,25 @@ class NicknameCode(Base):
     nickname = Column(String)
     code = Column(String)
 
-engine = create_engine('sqlite:///user_auth.db')
-Base.metadata.create_all(engine)
-Session = sessionmaker(bind=engine)
-session = Session()
-
 @app.post("/check_id", response_model=Task_str)
 async def create_task(user_id: dict, background_tasks: BackgroundTasks):
     task = Task_str(id=uuid4(), status="running", result="None")
     tasks.append(task)
-    # check_user(task, user_id['user_id'])
     background_tasks.add_task(check_user, task, user_id['user_id'])
     return task
 
 
 @app.get("/{task_id}")
 async def get_task(task_id: UUID):
-    print("Here", tasks)
-    
     for task in tasks:
         if task.id == task_id:
             return task
-        
-    raise HTTPException(
-        status_code=404,
-        detail="Task with this ID not found"
-    )
 
 async def check_user(task, user_id):
     user = session.query(UserRole).filter(UserRole.user_id == user_id).first()
     task.status = "ready"
     if user:
-        task.result = True
+        task.result = user.role
 
 @app.post("/check_mail", response_model=Task_str)
 async def create_task(nickname: dict, background_tasks: BackgroundTasks):
@@ -87,9 +80,8 @@ async def create_task(nickname: dict, background_tasks: BackgroundTasks):
 
 def send_mail(task: Task_str, nickname: str) -> str:
     email = "workspacemanagertelebot@yandex.ru"
-    # load_dotenv('.env')
-    # password = os.getenv("MAIL_PASSWORD")
-    password = "wwjitkohdkflgpzx" # need hide
+    load_dotenv('.env')
+    password = os.getenv("MAIL_PASSWORD")
     dest_email = nickname + "@student.21-school.ru"
     subject = "Authorization"
     secret_code = task.result
@@ -102,7 +94,6 @@ def send_mail(task: Task_str, nickname: str) -> str:
 
     server = smtp.SMTP_SSL('smtp.yandex.com', 465)
     server.login(email, password)
-    print(email, dest_email, message, flush=True)
     server.sendmail(email, dest_email, message)
     server.quit()
 
@@ -125,21 +116,18 @@ async def check_code(task: Task_bool, code:dict):
         NicknameCode.code == code['code'] and 
         NicknameCode.nickname == code['nickname']).first()
 
-    new_user = UserRole(
-        user_id=code['user_id'], nickname=code['nickname'], role='COMMON') #autoincrement doesn't work, i dont know why
-    session.add(new_user)
-    session.commit()
 
     task.status = "ready"
     if user:
+        new_user = UserRole(
+        user_id=code['user_id'], nickname=code['nickname'], role='COMMON')
+        session.add(new_user)
+        session.commit()
         task.result = True
 
     # delete_statement = delete(NicknameCode).where(NicknameCode.id == user.id)
     # session.execute(delete_statement)
     # session.commit()
-
-class UserRequest(BaseModel):
-    user: dict
 
 @app.get("/user/id={user_id}")
 def get_user_role(user_id: str):
@@ -153,17 +141,13 @@ def get_user_role(user_id: str):
     
 
 if __name__ == "__main__":
+    # # for testing
+    # #===================================================================
+    # user_role1 = UserRole(user_id=666, nickname='chelovek_admin', role='ADM')
+    # user_role2 = UserRole(user_id=333, nickname='user-man', role='COMMON')
+    # user_role3 = UserRole(user_id=999, nickname='user-woman', role='COMMON')
+    # session.add_all([user_role1, user_role2, user_role3])
+    # #===================================================================
 
-    # for testing
-    #===================================================================
-    user_role1 = UserRole(user_id=666, nickname='chelovek_admin', role='ADM')
-    user_role2 = UserRole(user_id=333, nickname='user-man', role='COMMON')
-    user_role3 = UserRole(user_id=999, nickname='user-woman', role='COMMON')
-    session.add_all([user_role1, user_role2, user_role3])
-    #===================================================================
-
-    session.commit()
-
+    # uvicorn.run(app, port=8888)
     uvicorn.run("main:app", host="0.0.0.0", port=8888, reload=True)
-
-# wwjitkohdkflgpzx

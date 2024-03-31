@@ -17,7 +17,7 @@ router = Router()
 async def start(message: Message, state: FSMContext):
     state.clear()
     await state.update_data(user_id=message.from_user.id)
-    await message.answer("Дата бронирования:", reply_markup=common_kbs.main_kb())
+    await message.answer("Выбери действие:", reply_markup=common_kbs.main_kb())
     await state.set_state(CommonSG.choosing_action)
 
 
